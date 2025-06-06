@@ -1,0 +1,11 @@
+{
+    "epochs": 5,
+    "batch_size": 32,
+    "lr": 0.001,
+    "cnn_channels": 128,
+    "s5_dim": 256,
+    "num_s5_layers": 4,
+    "npz_dir": "/datasets/nuovi_npz",
+    "output_dir": "./outputs",
+    "device": "cpu"
+}
