@@ -8,6 +8,7 @@ import argparse
 from tqdm import tqdm
 import json
 from pathlib import Path
+from s5 import S5Block
 
 # S5 Layer implementation
 class S5Layer(nn.Module):
@@ -88,9 +89,11 @@ class CNNS5Model(nn.Module):
         self.proj_in = nn.Linear(cnn_channels, s5_dim)
         
         # Stack of S5 layers
-        self.s5_layers = nn.ModuleList([
-            S5Layer(s5_dim) for _ in range(num_s5_layers)
-        ])
+        s5_blocks = []
+        for _ in range(num_s5_layers):
+            # S5Block(in_dim, out_dim, use_dropout)
+            s5_blocks.append(S5Block(s5_dim, s5_dim, False))
+        self.s5_layers = nn.Sequential(*s5_blocks)
         
         # Output classifier
         self.classifier = nn.Linear(s5_dim, num_classes)
@@ -174,6 +177,7 @@ def train_epoch(model, dataloader, optimizer, criterion, device):
         
         # Backward pass
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
         optimizer.step()
         
         # Calculate accuracy
